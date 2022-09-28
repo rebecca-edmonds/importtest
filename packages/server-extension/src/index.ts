@@ -32,6 +32,8 @@ import { ISettings, Settings } from '@jupyterlite/settings';
 
 import { ITranslation, Translation } from '@jupyterlite/translation';
 
+import { IWorkspaces, Workspaces } from '@jupyterlite/workspaces';
+
 import { ILocalForage, ensureMemoryStorage } from '@jupyterlite/localforage';
 
 import localforage from 'localforage';
@@ -467,6 +469,62 @@ const licensesRoutesPlugin: JupyterLiteServerPlugin<void> = {
 };
 
 /**
+ * The licenses service plugin
+ */
+const workspacesPlugin: JupyterLiteServerPlugin<IWorkspaces> = {
+  id: '@jupyterlite/server-extension:workspaces',
+  autoStart: true,
+  provides: IWorkspaces,
+  requires: [ILocalForage],
+  activate: (app: JupyterLiteServer, forage: ILocalForage) => {
+    const { localforage } = forage;
+    const storageName = PageConfig.getOption('workspacesStorageName');
+    const storageDrivers = JSON.parse(
+      PageConfig.getOption('workspacesStorageDrivers') || 'null'
+    );
+
+    const workspaces = new Workspaces({ localforage, storageDrivers, storageName });
+
+    app.started.then(() => workspaces.initialize().catch(console.warn));
+
+    return workspaces;
+  },
+};
+
+/**
+ * A plugin providing the routes for the licenses service.
+ */
+const workspacesRoutesPlugin: JupyterLiteServerPlugin<void> = {
+  id: '@jupyterlite/server-extension:workspaces-routes',
+  autoStart: true,
+  requires: [IWorkspaces],
+  activate(app: JupyterLiteServer, workspaces: IWorkspaces) {
+    app.router.get('/(api|app/lab)/workspaces/?$', async (req: Router.IRequest) => {
+      const res = await workspaces.getAll();
+      return new Response(JSON.stringify(res));
+    });
+
+    app.router.get(
+      '/(api|app/lab)/workspaces/(.+)',
+      async (req: Router.IRequest, workspaceId: string) => {
+        workspaceId = req.pathname.split('/').slice(-1)[0];
+        const res = await workspaces.getWorkspace(workspaceId);
+        return new Response(JSON.stringify(res));
+      }
+    );
+    app.router.put(
+      '/(api|app/lab)/workspaces/(.+)',
+      async (req: Router.IRequest, workspaceId: string) => {
+        workspaceId = req.pathname.split('/').slice(-1)[0];
+        const body = req.body as any;
+        await workspaces.setWorkspace(workspaceId, body);
+        return new Response(null, { status: 204 });
+      }
+    );
+  },
+};
+
+/**
  * A plugin providing the routes for the nbconvert service.
  * TODO: provide the service in a separate plugin?
  */
@@ -633,10 +691,10 @@ const plugins: JupyterLiteServerPlugin<any>[] = [
   contentsPlugin,
   contentsRoutesPlugin,
   emscriptenFileSystemPlugin,
-  kernelsPlugin,
-  kernelsRoutesPlugin,
   kernelSpecPlugin,
   kernelSpecRoutesPlugin,
+  kernelsPlugin,
+  kernelsRoutesPlugin,
   licensesPlugin,
   licensesRoutesPlugin,
   localforageMemoryPlugin,
@@ -649,6 +707,8 @@ const plugins: JupyterLiteServerPlugin<any>[] = [
   settingsRoutesPlugin,
   translationPlugin,
   translationRoutesPlugin,
+  workspacesPlugin,
+  workspacesRoutesPlugin,
 ];
 
 export default plugins;

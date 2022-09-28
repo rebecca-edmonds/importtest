@@ -2,5 +2,4 @@
 // Distributed under the terms of the Modified BSD License.
 
 export * from './tokens';
-export * from './memory';
-export * from './forager';
+export * from './workspaces';

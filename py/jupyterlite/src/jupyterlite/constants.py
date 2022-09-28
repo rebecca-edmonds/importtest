@@ -77,6 +77,9 @@ DEFAULT_OUTPUT_DIR = "_output"
 #: commonly-used filename for response fixtures, e.g. settings
 ALL_JSON = "all.json"
 
+#: the workspace file extension
+WORKSPACE_FILE = ".jupyterlab-workspace"
+
 ### Environment Variables
 
 #: a canonical environment variable for triggering reproducible builds
@@ -98,8 +101,15 @@ ALL_WHL = [NOARCH_WHL, WASM_WHL]
 
 #: the Jupyter API route for Contents API
 API_CONTENTS = "api/contents"
+#: the JupyterLab API route for Translations API
 API_TRANSLATIONS = "api/translations"
+#: the JupyterLab API route for Workspaces API
+API_WORKSPACES = "api/workspaces"
+
+#: the file path for labextensions
 LAB_EXTENSIONS = "extensions"
+#: the file path for workspaces
+WORKSPACES = "workspaces"
 
 #: our doit task-based plugin system
 HOOKS = [
@@ -151,6 +161,7 @@ DEFAULT_FILE_TYPES = dict(
         ipynb=[[".ipynb"], ["application/x-ipynb+json"]],
         jsmap=[[".map"], ["application/json"]],
         json=[[".json"], ["application/json"]],
+        jupyterlab_workspace=[[".jupyterlab-workspace"], ["application/json"]],
     ),
     base64=dict(
         gzip=[[".tgz", ".gz", ".gzip"], ["application/gzip"]],

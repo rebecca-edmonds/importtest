@@ -18,7 +18,6 @@ const serverExtensions = [
 
 // custom list of disabled plugins
 const disabled = [
-  '@jupyterlab/apputils-extension:workspaces',
   '@jupyterlab/application-extension:logo',
   '@jupyterlab/application-extension:main',
   '@jupyterlab/application-extension:tree-resolver',
@@ -26,7 +25,7 @@ const disabled = [
   '@jupyterlab/docmanager-extension:download',
   '@jupyterlab/filebrowser-extension:download',
   '@jupyterlab/filebrowser-extension:share-file',
-  '@jupyterlab/help-extension:about'
+  '@jupyterlab/help-extension:about',
 ];
 
 async function createModule(scope, module) {
