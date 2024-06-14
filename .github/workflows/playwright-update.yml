@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        browser: [firefox, chromium]
+        browser: [firefox, chromium, webkit]
 
     steps:
       - name: React to the triggering comment
@@ -58,7 +58,7 @@ jobs:
           jlpm
           python3 -m pip install -r requirements.txt
           jlpm build
-          jlpm playwright install
+          jlpm playwright install --with-deps
 
       - name: Update snapshots
         uses: jupyterlab/maintainer-tools/.github/actions/update-snapshots@v1
